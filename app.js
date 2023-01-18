@@ -7,6 +7,9 @@ const mongoose = require("mongoose");
 // importing ejs
 const ejs = require("ejs");
 
+const _ = require("lodash");
+const e = require("express");
+
 //Set up default mongoose connection
 var mongoDB = "mongodb://127.0.0.1/wikiDB";
 mongoose.set("strictQuery", false);
@@ -37,36 +40,106 @@ app.get("/", (req, res) => {
   res.send("Wiki-Api");
 });
 
-// get function for "/articles" route
-app.get("/articles", (req, res) => {
-  Article.find({}, { _id: 0, title: 1, content: 1 }, (err, articles) => {
-    if (!err) {
-      res.send(articles);
-    } else {
-      res.send(err);
-    }
+// -----------------------------REQUEST FOR ALL ARTICLES-----------------------------
+
+app
+  .route("/articles")
+
+  .get((req, res) => {
+    Article.find({}, { _id: 0, title: 1, content: 1 }, (err, articles) => {
+      if (!err) {
+        res.send(articles);
+      } else {
+        res.send(err);
+      }
+    });
+  })
+
+  .post((req, res) => {
+    const newArticle = new Article({
+      title: req.body.title,
+      content: req.body.content,
+    });
+
+    newArticle.save((err) => {
+      if (!err) {
+        res.send("Successfully added new article.");
+      } else {
+        res.send(err);
+      }
+    });
+  })
+
+  .delete((req, res) => {
+    Article.deleteMany((err) => {
+      if (!err) {
+        console.log("Successfully deleted all articles");
+      } else {
+        console.log(err);
+      }
+    });
   });
-});
 
-app.post("/articles", (req, res) => {
-  console.log(req.body.title);
-  console.log(req.body.content);
+// -----------------------------REQUEST FOR SPECIFIC ARTICLES-----------------------------
 
-  const newArticle = new Article({
-    title: req.body.title,
-    content: req.body.content,
+app
+  .route("/articles/:articleID")
+
+  .get((req, res) => {
+    Article.findOne(
+      { title: req.params.articleID },
+      { _id: 0, title: 1, content: 1 },
+      (err, article) => {
+        if (!err) {
+          if (article !== null) {
+            res.send(article);
+          } else {
+            res.send("Article Not Found");
+          }
+        } else {
+          res.send(err);
+        }
+      }
+    );
+  })
+
+  .put((req, res) => {
+    Article.updateOne(
+      { title: req.params.articleID },
+      { title: req.body.title, content: req.body.content },
+      (err) => {
+        if (!err) {
+          res.send("Updated Successfully");
+        } else {
+          res.send(err);
+        }
+      }
+    );
+  })
+
+  .patch((req, res) => {
+    Article.updateOne(
+      { title: req.params.articleID },
+      { $set: req.body },
+      (err) => {
+        if (!err) {
+          res.send("Sucessfully patched");
+        } else {
+          res.send(err);
+        }
+      }
+    );
+  })
+
+  .delete((req, res) => {
+    Article.deleteOne({ title: req.params.articleID }, (err) => {
+      if (!err) {
+        res.send("Successfully deleted");
+      } else {
+        res.send(err);
+      }
+    });
   });
-
-  newArticle.save((err) => {
-    if (!err) {
-      res.send("Success");
-    } else {
-      res.send(err);
-    }
-  });
-});
-
-
 
 // Listening to the port
 app.listen(port, () => {
