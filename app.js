@@ -6,12 +6,11 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 // importing ejs
 const ejs = require("ejs");
-
-const _ = require("lodash");
-const e = require("express");
+// import dotenv
+require("dotenv").config();
 
 //Set up default mongoose connection
-var mongoDB = "mongodb://127.0.0.1/wikiDB";
+var mongoDB = process.env.mongooseURL;
 mongoose.set("strictQuery", false);
 mongoose.connect(mongoDB, { useNewUrlParser: true });
 
