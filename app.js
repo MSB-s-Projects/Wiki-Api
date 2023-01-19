@@ -37,7 +37,9 @@ const Article = mongoose.model("Article", articleSchema);
 
 // get function for "/" route
 app.get("/", (req, res) => {
-  res.send("Wiki-Api");
+  res.send(
+    "<div><h1>Wiki-API</h1><h2>This API is RESTful you can use the following commands:</h2><h3>For all articles use '/articles' route:</h3><ul><li>GET</li><li>POST</li><li>DELETE</li></ul><h3>For Specific articeles use the route '/articles/{article-name}':</article-name></h3><ul><li>GET</li><li>POST</li><li>PATCH</li><li>PUT</li><li>DELETE</li></ul></div>"
+  );
 });
 
 // -----------------------------REQUEST FOR ALL ARTICLES-----------------------------
